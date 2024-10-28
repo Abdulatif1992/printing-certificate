@@ -220,7 +220,8 @@ if os.path.exists(file_path):
 
     # Load your data
     Data = pd.read_csv(file_path, encoding='shift_jis', low_memory=False)
-
+    Data = Data[Data['合否判定'] == "***合格***"]
+    
     # barcha rasm bor ekanligini tekshiruvchi funsiya
     idNumbers = Data['受験番号']
     idFromImages = getIdsFromImage()

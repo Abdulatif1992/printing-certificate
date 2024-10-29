@@ -26,7 +26,6 @@ def register_meiryo_font():
     font_path = "C:/Windows/Fonts/Meiryo.ttc"  # Path to Meiryo font on Windows
     pdfmetrics.registerFont(TTFont('Meiryo', font_path))
 
-
 def getIdsFromImage():
     # Rasm joylashgan papka yo'lini ko'rsatish
     folder_path = 'data/userImages'

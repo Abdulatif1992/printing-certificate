@@ -153,31 +153,27 @@ def getDateOfIssue():
 
 def create_pdf_with_background(row):
     # Define the A4 page size
-    # width, height = landscape(A4)
-    # Define custom page size (23x29 cm)
-    width, height = 29 * cm, 22.5 * cm
-    margin = 0.5 * cm
+    width, height = landscape(A4)
     
     # Create the PDF canvas
-    # c = canvas.Canvas('pdf files/'+str(row['受験番号'])+'.pdf', pagesize=landscape(A4))
-    c = canvas.Canvas('pdf files/'+str(row['受験番号'])+'.pdf', pagesize=(width, height))
+    c = canvas.Canvas('pdf files/'+str(row['受験番号'])+'.pdf', pagesize=landscape(A4))
 
     # Add the background image
     background_image_path = "data/2023年09月_日本語NAT-TEST成績表背景.png"
     background = ImageReader(background_image_path)
-    c.drawImage(background, margin, margin*3, width=width-margin*2, height=height-margin*6)
+    c.drawImage(background, 0, 0, width=width, height=height)
 
     # Set font and font size for text
     c.setFont("Meiryo", 9)
 
     # Set each text line individually
     # Date of Issue
-    c.drawString(20.6 * cm, height - 2.7*cm, getDateOfIssue())  # date
+    c.drawString(21.6 * cm, height - 1.3*cm, getDateOfIssue())  # date
 
     # Position the first group of text (examineeInformation)
     distance = 0.85 * cm
     text_x = 6.7 * cm
-    text_y = height - 3.6 * cm   # 2.3 Start near the top of the page
+    text_y = height - 2.3 * cm   # Start near the top of the page
 
     c.drawString(text_x, text_y - distance * 0, getMonthAndYearAsText(row['受験番号']))  # date
     c.drawString(text_x, text_y - distance * 1, getLevelAsText(row['受験番号']))         # level
@@ -186,9 +182,9 @@ def create_pdf_with_background(row):
 
     # Position the second group of texts (result)
     distance = 0.45 * cm
-    resultText_x = 4.2 * cm
-    scoreText_x = 12.5 * cm    
-    resultText_y = height - 8.9 * cm   # Start near the top of the page
+    resultText_x = 3.9 * cm
+    scoreText_x = 12.9 * cm    
+    resultText_y = height - 8 * cm   # Start near the top of the page
 
     c.drawString(resultText_x, resultText_y - distance * 0, str(row['分野名1']))        # section name1
     c.drawString(resultText_x, resultText_y - distance * 1, str(row['分野名2']))        # section name2
@@ -197,7 +193,7 @@ def create_pdf_with_background(row):
     
     # Score section (Max score)
     c.setFont("Meiryo", 12)
-    c.drawString(scoreText_x -0.8 * cm, resultText_y + 0.6 * cm, str(int(row['配点総合'])))                                               # max score total
+    c.drawString(scoreText_x -0.8 * cm, resultText_y + 0.6 * cm, str(int(row['配点総合'])))                                          # max score total
     c.drawString(scoreText_x - 1.6 * cm - text_width(int(row['得点総合']), c), resultText_y + 0.6 * cm, str(int(row['得点総合']))+"  /")   # score overall  
     c.setFont("Meiryo", 9)
     c.drawString(scoreText_x - text_width(int(row['配点1']), c), resultText_y - distance * 0, str(int(row['配点1'])))                # section score1
@@ -207,14 +203,14 @@ def create_pdf_with_background(row):
 
 
     # Score section
-    overalText_x = 11.2 * cm    
+    overalText_x = 11.5 * cm    
     c.drawString(overalText_x - text_width(int(row['得点1']), c), resultText_y - distance * 0, str(int(row['得点1']))+"  /")      # score1  
     c.drawString(overalText_x - text_width(int(row['得点2']), c), resultText_y - distance * 1, str(int(row['得点2']))+"  /")      # score2  
     if not pd.isna(row['得点3']):  # Agar qiymat NaN bo'lmasa 
         c.drawString(overalText_x - text_width(int(row['得点3']), c), resultText_y - distance * 2, str(int(row['得点3']))+"  /")  # score3 
 
     # Overall Pass Marks section  
-    maxText_x = 14.6 * cm
+    maxText_x = 15.1 * cm
     c.drawString(maxText_x - text_width(getOverallPassMark(row['受験番号'], 0), c), resultText_y + 0.6 * cm, getOverallPassMark(row['受験番号'], 0))       # score overall  
     c.drawString(maxText_x - text_width(getOverallPassMark(row['受験番号'], 1), c), resultText_y - distance * 0, getOverallPassMark(row['受験番号'], 1))   # score1  
     c.drawString(maxText_x - text_width(getOverallPassMark(row['受験番号'], 2), c), resultText_y - distance * 1, getOverallPassMark(row['受験番号'], 2))   # score2  
@@ -222,9 +218,9 @@ def create_pdf_with_background(row):
     
 
     # main section
-    distance = 0.44 * cm
-    sectionText_x = 1.8 * cm
-    sectionText_y = height - 12.05 * cm   # Start near the top of the page
+    distance = 0.47 * cm
+    sectionText_x = 1.35 * cm
+    sectionText_y = height - 11.35 * cm   # Start near the top of the page
     c.drawString(sectionText_x, sectionText_y - distance * 0, row['section_q1']) # sectionName1
     c.drawString(sectionText_x, sectionText_y - distance * 1, row['section_q2']) # sectionName2
     c.drawString(sectionText_x, sectionText_y - distance * 2, row['section_q3']) # sectionName3
@@ -251,7 +247,7 @@ def create_pdf_with_background(row):
         c.drawString(sectionText_x, sectionText_y - distance * 18, str(row['section_q19'])) # sectionName19
 
     # Question section  
-    questionText_x = 7.7 * cm  
+    questionText_x = 7.5 * cm  
     c.drawString(questionText_x, sectionText_y - distance * 0, row['問題1']) # questionNumber1
     c.drawString(questionText_x, sectionText_y - distance * 1, row['問題2']) # questionNumber2
     c.drawString(questionText_x, sectionText_y - distance * 2, row['問題3']) # questionNumber3
@@ -278,7 +274,7 @@ def create_pdf_with_background(row):
         c.drawString(questionText_x, sectionText_y - distance * 18, str(row['問題19'])) # questionNumber19
 
     # Question section  
-    questionText_x = 9.7 * cm  
+    questionText_x = 9.8 * cm  
     c.drawString(questionText_x, sectionText_y - distance * 0, row['question_name_q1']) # questionName1
     c.drawString(questionText_x, sectionText_y - distance * 1, row['question_name_q2']) # questionName2
     c.drawString(questionText_x, sectionText_y - distance * 2, row['question_name_q3']) # questionName3
@@ -306,7 +302,7 @@ def create_pdf_with_background(row):
     
     
     # total  section
-    totalText_x = 15.9 * cm  
+    totalText_x = 16.3 * cm  
     c.drawString(totalText_x - text_width(int(row['total_q1']), c), sectionText_y - distance * 0, str(int(row['total_q1']))) # total1
     c.drawString(totalText_x - text_width(int(row['total_q2']), c), sectionText_y - distance * 1, str(int(row['total_q2']))) # total2
     c.drawString(totalText_x - text_width(int(row['total_q3']), c), sectionText_y - distance * 2, str(int(row['total_q3']))) # total3
@@ -333,7 +329,7 @@ def create_pdf_with_background(row):
         c.drawString(totalText_x - text_width(int(row['total_q19']), c), sectionText_y - distance * 18, str(int(row['total_q19']))) # total19  
     
     # correct answers section  
-    totalText_x = 15.4 * cm  
+    totalText_x = 15.8 * cm  
     c.drawString(totalText_x - text_width(row['correct_q1'], c), sectionText_y - distance * 0, str(row['correct_q1'])) # correct1
     c.drawString(totalText_x - text_width(row['correct_q2'], c), sectionText_y - distance * 1, str(row['correct_q2'])) # correct2
     c.drawString(totalText_x - text_width(row['correct_q3'], c), sectionText_y - distance * 2, str(row['correct_q3'])) # correct3
@@ -361,7 +357,7 @@ def create_pdf_with_background(row):
     
     
     # percentage section  
-    totalText_x = 17.9 * cm  
+    totalText_x = 18.4 * cm  
     c.drawString(totalText_x - text_width(row['percent_q1'], c), sectionText_y - distance * 0, str(row['percent_q1'])) # percent1
     c.drawString(totalText_x - text_width(row['percent_q2'], c), sectionText_y - distance * 1, str(row['percent_q2'])) # percent2
     c.drawString(totalText_x - text_width(row['percent_q3'], c), sectionText_y - distance * 2, str(row['percent_q3'])) # percent3
@@ -389,48 +385,48 @@ def create_pdf_with_background(row):
     
     
     # percentage Image section  
-    PercentImage_x = 17.93 * cm    
-    distanceImage = 0.441 * cm
-    c.drawImage(getImageName(row['percent_q1']), PercentImage_x, sectionText_y - distanceImage * 0, width=9.4 * cm, height=0.3 * cm, mask='auto')        
-    c.drawImage(getImageName(row['percent_q2']), PercentImage_x, sectionText_y - distanceImage * 1, width=9.4 * cm, height=0.3 * cm, mask='auto')        
-    c.drawImage(getImageName(row['percent_q3']), PercentImage_x, sectionText_y - distanceImage * 2, width=9.4 * cm, height=0.3 * cm, mask='auto')        
-    c.drawImage(getImageName(row['percent_q4']), PercentImage_x, sectionText_y - distanceImage * 3, width=9.4 * cm, height=0.3 * cm, mask='auto')        
-    c.drawImage(getImageName(row['percent_q5']), PercentImage_x, sectionText_y - distanceImage * 4, width=9.4 * cm, height=0.3 * cm, mask='auto')        
-    c.drawImage(getImageName(row['percent_q6']), PercentImage_x, sectionText_y - distanceImage * 5, width=9.4 * cm, height=0.3 * cm, mask='auto')        
-    c.drawImage(getImageName(row['percent_q7']), PercentImage_x, sectionText_y - distanceImage * 6, width=9.4 * cm, height=0.3 * cm, mask='auto')        
-    c.drawImage(getImageName(row['percent_q8']), PercentImage_x, sectionText_y - distanceImage * 7, width=9.4 * cm, height=0.3 * cm, mask='auto')        
-    c.drawImage(getImageName(row['percent_q9']), PercentImage_x, sectionText_y - distanceImage * 8, width=9.4 * cm, height=0.3 * cm, mask='auto')        
-    c.drawImage(getImageName(row['percent_q10']), PercentImage_x, sectionText_y - distanceImage * 9, width=9.4 * cm, height=0.3 * cm, mask='auto')        
-    c.drawImage(getImageName(row['percent_q11']), PercentImage_x, sectionText_y - distanceImage * 10, width=9.4 * cm, height=0.3 * cm, mask='auto')        
-    c.drawImage(getImageName(row['percent_q12']), PercentImage_x, sectionText_y - distanceImage * 11, width=9.4 * cm, height=0.3 * cm, mask='auto')        
-    c.drawImage(getImageName(row['percent_q13']), PercentImage_x, sectionText_y - distanceImage * 12, width=9.4 * cm, height=0.3 * cm, mask='auto')        
-    c.drawImage(getImageName(row['percent_q14']), PercentImage_x, sectionText_y - distanceImage * 13, width=9.4 * cm, height=0.3 * cm, mask='auto')           
+    PercentImage_x = 18.55 * cm    
+    distanceImage = 0.475 * cm
+    c.drawImage(getImageName(row['percent_q1']), PercentImage_x, sectionText_y - distanceImage * 0, width=9.9 * cm, height=0.3 * cm, mask='auto')        
+    c.drawImage(getImageName(row['percent_q2']), PercentImage_x, sectionText_y - distanceImage * 1, width=9.9 * cm, height=0.3 * cm, mask='auto')        
+    c.drawImage(getImageName(row['percent_q3']), PercentImage_x, sectionText_y - distanceImage * 2, width=9.9 * cm, height=0.3 * cm, mask='auto')        
+    c.drawImage(getImageName(row['percent_q4']), PercentImage_x, sectionText_y - distanceImage * 3, width=9.9 * cm, height=0.3 * cm, mask='auto')        
+    c.drawImage(getImageName(row['percent_q5']), PercentImage_x, sectionText_y - distanceImage * 4, width=9.9 * cm, height=0.3 * cm, mask='auto')        
+    c.drawImage(getImageName(row['percent_q6']), PercentImage_x, sectionText_y - distanceImage * 5, width=9.9 * cm, height=0.3 * cm, mask='auto')        
+    c.drawImage(getImageName(row['percent_q7']), PercentImage_x, sectionText_y - distanceImage * 6, width=9.9 * cm, height=0.3 * cm, mask='auto')        
+    c.drawImage(getImageName(row['percent_q8']), PercentImage_x, sectionText_y - distanceImage * 7, width=9.9 * cm, height=0.3 * cm, mask='auto')        
+    c.drawImage(getImageName(row['percent_q9']), PercentImage_x, sectionText_y - distanceImage * 8, width=9.9 * cm, height=0.3 * cm, mask='auto')        
+    c.drawImage(getImageName(row['percent_q10']), PercentImage_x, sectionText_y - distanceImage * 9, width=9.9 * cm, height=0.3 * cm, mask='auto')        
+    c.drawImage(getImageName(row['percent_q11']), PercentImage_x, sectionText_y - distanceImage * 10, width=9.9 * cm, height=0.3 * cm, mask='auto')        
+    c.drawImage(getImageName(row['percent_q12']), PercentImage_x, sectionText_y - distanceImage * 11, width=9.9 * cm, height=0.3 * cm, mask='auto')        
+    c.drawImage(getImageName(row['percent_q13']), PercentImage_x, sectionText_y - distanceImage * 12, width=9.9 * cm, height=0.3 * cm, mask='auto')        
+    c.drawImage(getImageName(row['percent_q14']), PercentImage_x, sectionText_y - distanceImage * 13, width=9.9 * cm, height=0.3 * cm, mask='auto')           
     if not pd.isna(row['percent_q15']):  # Agar qiymat NaN bo'lmasa
-        c.drawImage(getImageName(row['percent_q15']), PercentImage_x, sectionText_y - distanceImage * 14, width=9.4 * cm, height=0.3 * cm, mask='auto')        
+        c.drawImage(getImageName(row['percent_q15']), PercentImage_x, sectionText_y - distanceImage * 14, width=9.9 * cm, height=0.3 * cm, mask='auto')        
     if not pd.isna(row['percent_q16']):  # Agar qiymat NaN bo'lmasa    
-        c.drawImage(getImageName(row['percent_q16']), PercentImage_x, sectionText_y - distanceImage * 15, width=9.4 * cm, height=0.3 * cm, mask='auto')        
+        c.drawImage(getImageName(row['percent_q16']), PercentImage_x, sectionText_y - distanceImage * 15, width=9.9 * cm, height=0.3 * cm, mask='auto')        
     if not pd.isna(row['percent_q17']):  # Agar qiymat NaN bo'lmasa    
-        c.drawImage(getImageName(row['percent_q17']), PercentImage_x, sectionText_y - distanceImage * 16, width=9.4 * cm, height=0.3 * cm, mask='auto')        
+        c.drawImage(getImageName(row['percent_q17']), PercentImage_x, sectionText_y - distanceImage * 16, width=9.9 * cm, height=0.3 * cm, mask='auto')        
     if not pd.isna(row['percent_q18']):  # Agar qiymat NaN bo'lmasa    
-        c.drawImage(getImageName(row['percent_q18']), PercentImage_x, sectionText_y - distanceImage * 17, width=9.4 * cm, height=0.3 * cm, mask='auto')        
+        c.drawImage(getImageName(row['percent_q18']), PercentImage_x, sectionText_y - distanceImage * 17, width=9.9 * cm, height=0.3 * cm, mask='auto')        
     if not pd.isna(row['percent_q19']):  # Agar qiymat NaN bo'lmasa    
-        c.drawImage(getImageName(row['percent_q19']), PercentImage_x, sectionText_y - distanceImage * 18, width=9.4 * cm, height=0.3 * cm, mask='auto')        
+        c.drawImage(getImageName(row['percent_q19']), PercentImage_x, sectionText_y - distanceImage * 18, width=9.9 * cm, height=0.3 * cm, mask='auto')        
 
     # Pass image
     if row['合否判定']=="***合格***": # agar  nomzod o'tdi bo'lsa
         pass_image_path = "data/合格判定/goukaku.png"
         # Adjust x, y position for the image
-        image_x = 16.2 * cm  # Change this value to set horizontal position
-        image_y = 12.85 * cm  # Change this value to set vertical position    
-        c.drawImage(pass_image_path, image_x, image_y, width=1.6 * cm, height=1.6 * cm)
+        image_x = 16.5 * cm  # Change this value to set horizontal position
+        image_y = 12.1 * cm  # Change this value to set vertical position    
+        c.drawImage(pass_image_path, image_x, image_y, width=2 * cm, height=2 * cm)
 
     # Change the position of the additional image
     user_image = "data/userImages/"+str(row['受験番号'])+".png"   
     # Adjust x, y position for the image
-    image_x = 1.5 * cm  # Change this value to set horizontal position
-    image_y = 16.2 * cm  # Change this value to set vertical position    
+    image_x = 1.05 * cm  # Change this value to set horizontal position
+    image_y = 15.8 * cm  # Change this value to set vertical position    
     # Add the image with the new location
-    c.drawImage(user_image, image_x, image_y, width=2.2 * cm, height=3 * cm)    
+    c.drawImage(user_image, image_x, image_y, width=2.3 * cm, height=3.2 * cm)    
     
     # Save the PDF
     c.save()

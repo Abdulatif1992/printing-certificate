@@ -26,10 +26,10 @@ def register_meiryo_font():
     font_path = "C:/Windows/Fonts/Meiryo.ttc"  # Path to Meiryo font on Windows
     pdfmetrics.registerFont(TTFont('Meiryo', font_path))
 
-def text_width(text, c):
+def text_width(text, c, font='Meiryo', size = 9):
     #matnning kengligini aniqlaymiz
     text = str(text)
-    text_width = c.stringWidth(text, "Meiryo", 9)
+    text_width = c.stringWidth(text, font, size)
     return text_width
 
 def getOverallPassMark(number, section):
@@ -92,7 +92,7 @@ def getOverallPassMark(number, section):
 
 def getLevelAsText(number):
     level = str(number)[9]
-    return level+"Q (N"+level+"相当)    "+level+"Q (N"+level+" equvalent)"
+    return level+"Q (N"+level+"相当)    "+level+"Q (N"+level+" equivalent)"
 
 def getMonthAndYearAsText(number):
     month = str(number)[2:4]
@@ -149,7 +149,7 @@ def getDateOfIssue():
     month = today.strftime("%m")
     day = today.strftime("%d")
     
-    return year +" 年 "+ month +" 月 "+day+" 日     "+formatted_date
+    return year +" 年 "+ month +" 月 "+day+" 日   "+formatted_date
 
 def create_pdf_with_background(row):
     # Define the A4 page size
@@ -169,11 +169,11 @@ def create_pdf_with_background(row):
 
     # Set each text line individually
     # Date of Issue
-    c.drawString(21.2 * cm, height - 1.7*cm, getDateOfIssue())  # date
+    c.drawString(21.2 * cm, height - 1.75*cm, getDateOfIssue())  # date
 
     # Position the first group of text (examineeInformation)
     distance = 0.85 * cm
-    text_x = 6.9 * cm
+    text_x = 7 * cm
     text_y = height - 2.6 * cm   # Start near the top of the page
 
     c.drawString(text_x, text_y - distance * 0, getMonthAndYearAsText(row['受験番号']))  # date
@@ -194,8 +194,7 @@ def create_pdf_with_background(row):
     
     # Score section (Max score)
     c.setFont("Meiryo", 12)
-    c.drawString(scoreText_x -0.8 * cm, resultText_y + 0.6 * cm, str(int(row['配点総合'])))                                          # max score total
-    c.drawString(scoreText_x - 1.6 * cm - text_width(int(row['得点総合']), c), resultText_y + 0.6 * cm, str(int(row['得点総合']))+"  /")   # score overall  
+    c.drawString(scoreText_x - text_width(int(row['配点総合']), c, 'Meiryo', 12), resultText_y + 0.6 * cm, str(int(row['配点総合'])))
     c.setFont("Meiryo", 9)
     c.drawString(scoreText_x - text_width(int(row['配点1']), c), resultText_y - distance * 0, str(int(row['配点1'])))                # section score1
     c.drawString(scoreText_x - text_width(int(row['配点2']), c), resultText_y - distance * 1, str(int(row['配点2'])))                # section score2
@@ -204,14 +203,25 @@ def create_pdf_with_background(row):
 
 
     # Score section
-    overalText_x = 11.55 * cm    
-    c.drawString(overalText_x - text_width(int(row['得点1']), c), resultText_y - distance * 0, str(int(row['得点1']))+"  /")      # score1  
-    c.drawString(overalText_x - text_width(int(row['得点2']), c), resultText_y - distance * 1, str(int(row['得点2']))+"  /")      # score2  
+    overalText_x = 11.3 * cm 
+    c.setFont("Meiryo", 12) 
+    c.drawString(overalText_x - text_width(int(row['得点総合']), c, 'Meiryo', 12), resultText_y + 0.6 * cm, str(int(row['得点総合'])))   # score overall    
+    c.setFont("Meiryo", 9)
+    c.drawString(overalText_x - text_width(int(row['得点1']), c), resultText_y - distance * 0, str(int(row['得点1'])))      # score1  
+    c.drawString(overalText_x - text_width(int(row['得点2']), c), resultText_y - distance * 1, str(int(row['得点2'])))      # score2  
     if not pd.isna(row['得点3']):  # Agar qiymat NaN bo'lmasa 
-        c.drawString(overalText_x - text_width(int(row['得点3']), c), resultText_y - distance * 2, str(int(row['得点3']))+"  /")  # score3 
+        c.drawString(overalText_x - text_width(int(row['得点3']), c), resultText_y - distance * 2, str(int(row['得点3'])))  # score3 
+
+    # # just a line    
+    overalText_x = 11.7 * cm 
+    c.drawString(overalText_x, resultText_y + 0.6 * cm, "/")  
+    c.drawString(overalText_x, resultText_y - distance * 0, "/")       
+    c.drawString(overalText_x, resultText_y - distance * 1, "/")       
+    if not pd.isna(row['得点3']):  # Agar qiymat NaN bo'lmasa 
+        c.drawString(overalText_x, resultText_y - distance * 2, "/") 
 
     # Overall Pass Marks section  
-    maxText_x = 14.9 * cm
+    maxText_x = 15 * cm
     c.drawString(maxText_x - text_width(getOverallPassMark(row['受験番号'], 0), c), resultText_y + 0.6 * cm, getOverallPassMark(row['受験番号'], 0))       # score overall  
     c.drawString(maxText_x - text_width(getOverallPassMark(row['受験番号'], 1), c), resultText_y - distance * 0, getOverallPassMark(row['受験番号'], 1))   # score1  
     c.drawString(maxText_x - text_width(getOverallPassMark(row['受験番号'], 2), c), resultText_y - distance * 1, getOverallPassMark(row['受験番号'], 2))   # score2  
@@ -221,7 +231,7 @@ def create_pdf_with_background(row):
     # main section
     distance = 0.45 * cm
     sectionText_x = 1.75 * cm
-    sectionText_y = height - 11.35 * cm   # Start near the top of the page
+    sectionText_y = height - 11.31 * cm   # Start near the top of the page
     c.drawString(sectionText_x, sectionText_y - distance * 0, row['section_q1']) # sectionName1
     c.drawString(sectionText_x, sectionText_y - distance * 1, row['section_q2']) # sectionName2
     c.drawString(sectionText_x, sectionText_y - distance * 2, row['section_q3']) # sectionName3
@@ -425,9 +435,9 @@ def create_pdf_with_background(row):
     user_image = "data/userImages/"+str(row['受験番号'])+".png"   
     # Adjust x, y position for the image
     image_x = 1.5 * cm  # Change this value to set horizontal position
-    image_y = 15.5 * cm  # Change this value to set vertical position    
+    image_y = 15.6 * cm  # Change this value to set vertical position    
     # Add the image with the new location
-    c.drawImage(user_image, image_x, image_y, width=2.3 * cm, height=3.2 * cm)    
+    c.drawImage(user_image, image_x, image_y, width=2.3 * cm, height=3.07 * cm)    
     
     # Save the PDF
     c.save()

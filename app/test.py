@@ -1,8 +1,27 @@
-from PIL import Image
+import joblib
+import numpy as np
+import os
 
-def convert_png_to_pdf(png_path, pdf_path):
-    image = Image.open(png_path)
-    image.convert('RGB').save(pdf_path)
+# Define the folder name to add to the path
+folder_name = "data/models"
 
-# Rasmni PNG dan PDF ga aylantirish
-convert_png_to_pdf('data/正答率バー/bar_25.png', 'output_image.pdf')
+# Construct the new path
+new_path = os.path.join(os.getcwd(), folder_name)
+
+# Change the current working directory to the new path
+os.chdir(new_path)
+
+# Load the model and the scaler from the file
+model = joblib.load('5Q_RandomForestCBT.pkl')
+scaler = joblib.load('5Q_scalerCBT.pkl')
+
+# Sample new data
+new_data = np.array([[60, 29, 89, 51]])
+
+# Scale the new data using the loaded scaler
+scaled_data = scaler.transform(new_data)
+
+# Make prediction
+prediction = model.predict(scaled_data)
+
+print(f'Prediction: {prediction[0]}')  # Output will be 0 or 1

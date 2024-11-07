@@ -179,7 +179,7 @@ def create_pdf_with_background(row):
     c.drawString(text_x, text_y - distance * 0, getMonthAndYearAsText(row['受験番号']))  # date
     c.drawString(text_x, text_y - distance * 1, getLevelAsText(row['受験番号']))         # level
     c.drawString(text_x, text_y - distance * 2, str(row['受験番号']))                    # examinee's number
-    c.drawString(text_x, text_y - distance * 3, str(row['name']).upper())                   # name
+    c.drawString(text_x, text_y - distance * 3, str(row['name']).upper())                # name
 
     # Position the second group of texts (result)
     distance = 0.45 * cm
@@ -442,8 +442,6 @@ def create_pdf_with_background(row):
     # Save the PDF
     c.save()
 
-
-
 if os.path.exists(file_path):
     
     # Register Meiryo font before using it
@@ -472,9 +470,7 @@ if os.path.exists(file_path):
         # Agar missing_ids bo'sh bo'lsa, keyingi kodlar ishlaydi
         # DataFrame bo'yicha loop
         for index, row in Data.iterrows():
-            print(f"{row.iloc[0]}")        
-        
-            text_name = "XASFS ODZN IJI"
+            print(f"{row.iloc[0]}")    
 
             # Create the PDF
             create_pdf_with_background(row)

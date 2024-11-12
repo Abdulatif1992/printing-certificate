@@ -13,19 +13,19 @@ def calculate(row):
     match level:
         case 1:
             soten1, soten2,soten3 = calculate1Q(row)
-            result = predict(model, scaler, soten1, soten2, soten3)
+            result = predict(model, scaler, row['anchor'], soten1, soten2, soten3)
         case 2:
             soten1, soten2,soten3 = calculate2Q(row)
-            result = predict(model, scaler, soten1, soten2, soten3)
+            result = predict(model, scaler, row['anchor'], soten1, soten2, soten3)
         case 3:
             soten1, soten2,soten3 = calculate3Q(row)
-            result = predict(model, scaler, soten1, soten2, soten3)
+            result = predict(model, scaler, row['anchor'], soten1, soten2, soten3)
         case 4:
             soten12, soten3 = calculate4Q(row)
-            result = predict(model, scaler, soten12, soten3)
+            result = predict(model, scaler, row['anchor'], soten12, soten3)
         case 5:
             soten12, soten3 = calculate5Q(row)
-            result = predict(model, scaler, soten12, soten3)
+            result = predict(model, scaler, row['anchor'], soten12, soten3)
     return result
             
 
@@ -137,34 +137,34 @@ def calculate4Q(row):
 
 def calculate5Q(row):
     section1And2Total = (
-        row['correct_q1'] / 7 * 5.5 / 60 * 120 +
-        row['correct_q2'] / 5 * 4.5 / 60 * 120 +
-        row['correct_q3'] / 6 * 5 / 60 * 120 +
-        row['correct_q4'] / 3 * 5 / 60 * 120 +
-        row['correct_q5'] / 9 * 8 / 60 * 120 +
-        row['correct_q6'] / 4 * 5.5 / 60 * 120 +
-        row['correct_q7'] / 4 * 7 / 60 * 120 +
-        row['correct_q8'] / 2 * 6 / 60 * 120 +
-        row['correct_q9'] / 2 * 8 / 60 * 120 +
-        row['correct_q10'] / 1 * 5.5 / 60 * 120
+        int(row['correct_q1'].split()[0]) / 7 * 5.5 / 60 * 120 +
+        int(row['correct_q2'].split()[0]) / 5 * 4.5 / 60 * 120 +
+        int(row['correct_q3'].split()[0]) / 6 * 5 / 60 * 120 +
+        int(row['correct_q4'].split()[0]) / 3 * 5 / 60 * 120 +
+        int(row['correct_q5'].split()[0]) / 9 * 8 / 60 * 120 +
+        int(row['correct_q6'].split()[0]) / 4 * 5.5 / 60 * 120 +
+        int(row['correct_q7'].split()[0]) / 4 * 7 / 60 * 120 +
+        int(row['correct_q8'].split()[0]) / 2 * 6 / 60 * 120 +
+        int(row['correct_q9'].split()[0]) / 2 * 8 / 60 * 120 +
+        int(row['correct_q10'].split()[0]) / 1 * 5.5 / 60 * 120
     )
 
     section3Total = (
-        row['correct_q11'] / 7 * 9 / 30 * 60 +
-        row['correct_q12'] / 6 * 9 / 30 * 60 +
-        row['correct_q13'] / 5 * 6 / 30 * 60 +
-        row['correct_q14'] / 6 * 6 / 30 * 60
+        int(row['correct_q11'].split()[0]) / 7 * 9 / 30 * 60 +
+        int(row['correct_q12'].split()[0]) / 6 * 9 / 30 * 60 +
+        int(row['correct_q13'].split()[0]) / 5 * 6 / 30 * 60 +
+        int(row['correct_q13'].split()[0]) / 6 * 6 / 30 * 60
     )
 
     return section1And2Total, section3Total
 
-def predict(model, scaler, soten1, soten2, soten3=999):        
+def predict(model, scaler, anchor, soten1, soten2, soten3=999):
     if(soten3 == 999):
         # 4Q or 5Q       
-        new_data = pd.DataFrame([[soten1, soten2, soten1+soten2, 60]], columns=['S12', 'S3', 'Total', 'Anchor'])
+        new_data = pd.DataFrame([[soten1, soten2, soten1+soten2, anchor]], columns=['S12', 'S3', 'Total', 'Anchor'])
     else :
         # 1Q, 2Q or 3Q
-        new_data = pd.DataFrame([[soten1, soten2, soten3, soten1+soten2+soten3, 60]], columns=['S1', 'S2', 'S3', 'Total', 'Anchor']) 
+        new_data = pd.DataFrame([[soten1, soten2, soten3, soten1+soten2+soten3, anchor]], columns=['S1', 'S2', 'S3', 'Total', 'Anchor']) 
         
     # Scale the new data using the loaded scaler
     scaled_data = scaler.transform(new_data)
@@ -178,19 +178,25 @@ folder_name = "data"
 # Specify the file name
 file_name = 'grade_list.csv'
 
-# Define the path to the file
 # Since the script is in the 'app' folder, use '..' to move up one directory
 file_path = os.path.join(folder_name, file_name)
 
-
 if os.path.exists(file_path):    
     Data = pd.read_csv(file_path, encoding='shift_jis', low_memory=False)
+    # before your loop, open a new file
+    fw = open("outputfile.csv", "w") # can be .csv
     for index, row in Data.iterrows():
-        print(f"{row.iloc[0]}")    
-
-        # Create the PDF
+        # print(f"{row.iloc[0]}")    
         result = calculate(row)
-        print("result = " + str(result))
+        passed = 0
+        if(row['合否判定']=='***合格***'):
+            passed = 1  
+
+        if(result != passed):
+            print("result = " + str(result)+ "  " + str(row.iloc[0]))
+            # write a line - \t = tab character and \n = new line
+            fw.writelines("{}\t{}\t{}\n".format(row.iloc[0], result, passed)) 
+    # fw.close()‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍‍
 
 else:
     print("file yo'q")    
